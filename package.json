@@ -14,10 +14,19 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-workflows-helper.helloWorld",
-        "title": "Hello World"
+        "command": "ai-workflows-helper--vscode-extension.copyFiles",
+        "title": "Copy Files as Text Stream"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
+          "command": "ai-workflows-helper--vscode-extension.copyFiles",
+          "group": "navigation@1"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
