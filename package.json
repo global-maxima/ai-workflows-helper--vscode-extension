@@ -1,8 +1,11 @@
 {
   "name": "ai-workflows-helper",
+  "publisher": "GlobalMaxima",
+  "repository": { "type": "git", "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension" },
   "displayName": "ai-workflows-helper",
   "description": "allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream. Each file's content will be preceded by its filename, and the files will be processed in the order they were selected.",
-  "version": "0.0.1",
+  "icon": "images/logo.png",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.94.0"
   },
