@@ -2,10 +2,10 @@
   "name": "ai-workflows-helper",
   "publisher": "GlobalMaxima",
   "repository": { "type": "git", "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension" },
-  "displayName": "ai-workflows-helper",
-  "description": "allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream. Each file's content will be preceded by its filename, and the files will be processed in the order they were selected.",
-  "icon": "images/logo.png",
-  "version": "0.0.2",
+  "displayName": "AI workflow helper",
+  "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream. Each file's content will be preceded by its filename, and the files will be processed in the order they were selected.",
+  "icon": "images/logo_rounded.png",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -19,6 +19,10 @@
       {
         "command": "ai-workflows-helper--vscode-extension.copyFiles",
         "title": "Copy Files as Text Stream"
+      },
+      {
+        "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
+        "title": "Copy Files and Files in Folders as Text Stream"
       }
     ],
     "menus": {
@@ -26,6 +30,11 @@
         {
           "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
           "command": "ai-workflows-helper--vscode-extension.copyFiles",
+          "group": "navigation@1"
+        },
+        {
+          "when": "explorerResourceIsFolder == true && resourceScheme == 'file'",
+          "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
           "group": "navigation@1"
         }
       ]
