@@ -1,2 +1,2 @@
-# ai-workflows-helper
-lets users select multiple files across folders, right-click, and copy them into the clipboard as a single text stream. The file names precede the content of each file in workflows that involve multiple files.
+# AI workflow helper
+Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream. Each file's content will be preceded by its filename, and the files and folders will be placed in the text stream in the order they were selected.

@@ -1,76 +1,84 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFiles', (uri, uris) => {
-	  copyFilesAsTextStream(uris);
+		copyFilesAsTextStream(uris);
 	});
 	context.subscriptions.push(disposable);
 
 	let disposable2 = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFilesAndFolders', (uri, uris) => {
 		copyFilesAndFoldersAsTextStream(uris);
-  });
-  context.subscriptions.push(disposable2);
+	});
+	context.subscriptions.push(disposable2);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
 
 async function copyFilesAsTextStream(uris: vscode.Uri[]) {
 	if (!uris || uris.length === 0) {
-	  vscode.window.showWarningMessage('No files selected.');
-	  return;
+		vscode.window.showWarningMessage('No files selected.');
+		return;
 	}
-  
+
 	let textStream = '';
-  
+
+	// Get the workspace folder
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+	if (!workspaceFolder) {
+		vscode.window.showErrorMessage('No workspace folder found.');
+		return;
+	}
+
 	// Process files in the order they were selected
 	for (const uri of uris) {
-	  const filePath = uri.fsPath;
-	  const fileName = path.basename(filePath);
-  
-	  try {
-		const fileContent = await vscode.workspace.fs.readFile(uri);
-		const contentString = Buffer.from(fileContent).toString('utf8');
-  
-		textStream += `--- ${fileName} ---\n${contentString}\n\n`;
-	  } catch (error) {
-		vscode.window.showErrorMessage(`Failed to read file: ${fileName}`);
-	  }
+		const filePath = uri.fsPath;
+		const relativePath = path.relative(workspaceFolder.uri.fsPath, filePath);
+
+		try {
+			const fileContent = await vscode.workspace.fs.readFile(uri);
+			const contentString = Buffer.from(fileContent).toString('utf8');
+
+			textStream += `--- ${relativePath} ---\n${contentString}\n\n`;
+		} catch (error) {
+			vscode.window.showErrorMessage(`Failed to read file: ${relativePath}`);
+		}
 	}
-  
+
 	// Copy to clipboard
 	await vscode.env.clipboard.writeText(textStream);
-  
-	vscode.window.showInformationMessage('Files copied as text stream to clipboard.');
-  }
 
-/** Copy Files and Files in Folders as Text Stream */
+	vscode.window.showInformationMessage('Files copied as text stream to clipboard.');
+}
+
 async function copyFilesAndFoldersAsTextStream(uris: vscode.Uri[]) {
 	if (!uris || uris.length === 0) {
-	  vscode.window.showWarningMessage('No files or folders selected.');
-	  return;
+		vscode.window.showWarningMessage('No files or folders selected.');
+		return;
 	}
 
 	let textStream = '';
+
+	// Get the workspace folder
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+	if (!workspaceFolder) {
+		vscode.window.showErrorMessage('No workspace folder found.');
+		return;
+	}
 
 	for (const uri of uris) {
 		const filePath = uri.fsPath;
 		const stats = await vscode.workspace.fs.stat(uri);
 
 		if (stats.type === vscode.FileType.File) {
-			const fileName = path.basename(filePath);
+			const relativePath = path.relative(workspaceFolder.uri.fsPath, filePath);
 			try {
 				const fileContent = await vscode.workspace.fs.readFile(uri);
 				const contentString = Buffer.from(fileContent).toString('utf8');
-				textStream += `--- ${fileName} ---\n${contentString}\n\n`;
+				textStream += `--- ${relativePath} ---\n${contentString}\n\n`;
 			} catch (error) {
-				vscode.window.showErrorMessage(`Failed to read file: ${fileName}`);
+				vscode.window.showErrorMessage(`Failed to read file: ${relativePath}`);
 			}
 		} else if (stats.type === vscode.FileType.Directory) {
 			const folderName = path.basename(filePath);
@@ -78,13 +86,13 @@ async function copyFilesAndFoldersAsTextStream(uris: vscode.Uri[]) {
 			const folderUris = await vscode.workspace.findFiles(new vscode.RelativePattern(uri, '**/*'));
 			for (const folderUri of folderUris) {
 				const folderFilePath = folderUri.fsPath;
-				const folderFileName = path.relative(filePath, folderFilePath);
+				const relativePath = path.relative(workspaceFolder.uri.fsPath, folderFilePath);
 				try {
 					const fileContent = await vscode.workspace.fs.readFile(folderUri);
 					const contentString = Buffer.from(fileContent).toString('utf8');
-					textStream += `--- ${folderFileName} ---\n${contentString}\n\n`;
+					textStream += `--- ${relativePath} ---\n${contentString}\n\n`;
 				} catch (error) {
-					vscode.window.showErrorMessage(`Failed to read file: ${folderFileName}`);
+					vscode.window.showErrorMessage(`Failed to read file: ${relativePath}`);
 				}
 			}
 		}
@@ -95,27 +103,34 @@ async function copyFilesAndFoldersAsTextStream(uris: vscode.Uri[]) {
 }
 
 async function copyFilesWithDepthAsTextStream(uris: vscode.Uri[], depth: number) {
-  if (!uris || uris.length === 0) {
-    vscode.window.showWarningMessage('No files selected.');
-    return;
-  }
+	if (!uris || uris.length === 0) {
+		vscode.window.showWarningMessage('No files selected.');
+		return;
+	}
 
-  let textStream = '';
+	let textStream = '';
 
-  for (const uri of uris) {
-    const filePath = uri.fsPath;
-    const fileName = path.basename(filePath);
+	// Get the workspace folder
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+	if (!workspaceFolder) {
+		vscode.window.showErrorMessage('No workspace folder found.');
+		return;
+	}
 
-    try {
-      const fileContent = await vscode.workspace.fs.readFile(uri);
-      const contentString = Buffer.from(fileContent).toString('utf8');
+	for (const uri of uris) {
+		const filePath = uri.fsPath;
+		const relativePath = path.relative(workspaceFolder.uri.fsPath, filePath);
 
-      textStream += `--- ${fileName} ---\n${contentString}\n\n`;
-    } catch (error) {
-      vscode.window.showErrorMessage(`Failed to read file: ${fileName}`);
-    }
-  }
+		try {
+			const fileContent = await vscode.workspace.fs.readFile(uri);
+			const contentString = Buffer.from(fileContent).toString('utf8');
 
-  await vscode.env.clipboard.writeText(textStream);
-  vscode.window.showInformationMessage('Files copied as text stream to clipboard.');
+			textStream += `--- ${relativePath} ---\n${contentString}\n\n`;
+		} catch (error) {
+			vscode.window.showErrorMessage(`Failed to read file: ${relativePath}`);
+		}
+	}
+
+	await vscode.env.clipboard.writeText(textStream);
+	vscode.window.showInformationMessage('Files copied as text stream to clipboard.');
 }
