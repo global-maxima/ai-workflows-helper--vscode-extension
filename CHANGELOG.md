@@ -14,3 +14,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.5] - 2024-10-16
 ### Changed
 - Place file and folder names as relative paths instead of file/folder names
+
+## [0.0.7] - 2024-11-15
+### Added
+- File text content inclusion functionality with automatic content synchronization
