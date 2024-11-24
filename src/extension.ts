@@ -17,6 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
 		copyFilesWithDiagnostics(uris);
 	});
 	context.subscriptions.push(disposable3);
+
+	let disposable4 = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics', (uri, uris) => {
+		copyFilesInFoldersWithDiagnostics(uris);
+	});
 }
 
 // Unified file reading function to reduce code duplication
@@ -132,6 +136,41 @@ async function copyFilesAndFoldersAsTextStream(uris: vscode.Uri[]) {
 		}
 	}
 
+
+
 	await vscode.env.clipboard.writeText(textStream);
 	vscode.window.showInformationMessage('Files and folders copied as text stream to clipboard.');
+}
+
+async function copyFilesInFoldersWithDiagnostics(uris: vscode.Uri[]) {
+	if (!uris || uris.length === 0) {
+		vscode.window.showWarningMessage('No files or folders selected.');
+		return;
+	}
+
+	const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+	if (!workspaceFolder) {
+		vscode.window.showErrorMessage('No workspace folder found.');
+		return;
+	}
+
+	let textStream = '';
+
+	for (const uri of uris) {
+		const stats = await vscode.workspace.fs.stat(uri);
+
+		if (stats.type === vscode.FileType.File) {
+			textStream += await readFileWithDiagnostics(uri, workspaceFolder);
+		} else if (stats.type === vscode.FileType.Directory) {
+			const folderName = path.basename(uri.fsPath);
+			textStream += `--- Folder: ${folderName} ---\n`;
+			const folderUris = await vscode.workspace.findFiles(new vscode.RelativePattern(uri, '**/*'));
+			for (const folderUri of folderUris) {
+				textStream += await readFileWithDiagnostics(folderUri, workspaceFolder);
+			}
+		}
+	}
+
+	await vscode.env.clipboard.writeText(textStream);
+	vscode.window.showInformationMessage('Files and folders copied with problems to clipboard.');
 }

@@ -8,7 +8,7 @@
   "displayName": "AI workflow helper",
   "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -31,7 +31,7 @@
         "title": "Copy Files, including Diagnostics"
       },
       {
-        "command": "ai-workflows-helper--vscode-extension.copyFilesAndFoldersWithDiagnostics",
+        "command": "ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics",
         "title": "Copy Files and Files in Folders, including Diagnostics"
       }
     ],
@@ -54,7 +54,7 @@
         },
         {
           "when": "explorerResourceIsFolder == true",
-          "command": "ai-workflows-helper--vscode-extension.copyFilesAndFoldersWithDiagnostics",
+          "command": "ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics",
           "group": "7_aihelper@2"
         }
       ]

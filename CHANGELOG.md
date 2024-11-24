@@ -25,3 +25,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 - Including VSCode diagnostics output of selected files, as part of copied stream
+
+## [0.0.10] - 2024-11-24
+### Fixed
+- Diagnostics inclusion when triggered from menu item on context menu of single folder
