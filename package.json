@@ -6,9 +6,9 @@
     "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension"
   },
   "displayName": "AI workflow helper",
-  "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream. Also supports automatic file inclusion and content synchronization.",
+  "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "engines": {
     "vscode": "^1.94.0"
   },
@@ -27,8 +27,12 @@
         "title": "Copy Files and Files in Folders as Text Stream"
       },
       {
-        "command": "ai-workflows-helper--vscode-extension.scanIncludes",
-        "title": "Scan File for Includes"
+        "command": "ai-workflows-helper--vscode-extension.copyFilesWithDiagnostics",
+        "title": "Copy Files, including Diagnostics"
+      },
+      {
+        "command": "ai-workflows-helper--vscode-extension.copyFilesAndFoldersWithDiagnostics",
+        "title": "Copy Files and Files in Folders, including Diagnostics"
       }
     ],
     "menus": {
@@ -36,73 +40,24 @@
         {
           "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
           "command": "ai-workflows-helper--vscode-extension.copyFiles",
-          "group": "navigation@1"
+          "group": "7_aihelper@1"
         },
         {
-          "when": "explorerResourceIsFolder == true && resourceScheme == 'file'",
+          "when": "explorerResourceIsFolder == true",
           "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
-          "group": "navigation@1"
-        }
-      ],
-      "editor/context": [
+          "group": "7_aihelper@1"
+        },
         {
-          "command": "ai-workflows-helper--vscode-extension.scanIncludes",
-          "group": "navigation@2"
+          "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
+          "command": "ai-workflows-helper--vscode-extension.copyFilesWithDiagnostics",
+          "group": "7_aihelper@2"
+        },
+        {
+          "when": "explorerResourceIsFolder == true",
+          "command": "ai-workflows-helper--vscode-extension.copyFilesAndFoldersWithDiagnostics",
+          "group": "7_aihelper@2"
         }
       ]
-    },
-    "configuration": {
-      "contributes": {
-        "commands": [
-          {
-            "command": "ai-workflows-helper--vscode-extension.copyFiles",
-            "title": "Copy Files as Text Stream"
-          },
-          {
-            "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
-            "title": "Copy Files and Files in Folders as Text Stream"
-          },
-          {
-            "command": "ai-workflows-helper--vscode-extension.scanIncludes",
-            "title": "Scan File for Includes"
-          }
-        ],
-        "menus": {
-          "explorer/context": [
-            {
-              "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
-              "command": "ai-workflows-helper--vscode-extension.copyFiles",
-              "group": "navigation@1"
-            },
-            {
-              "when": "explorerResourceIsFolder == true && resourceScheme == 'file'",
-              "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
-              "group": "navigation@1"
-            }
-          ],
-          "editor/context": [
-            {
-              "command": "ai-workflows-helper--vscode-extension.scanIncludes",
-              "group": "navigation@2"
-            }
-          ]
-        },
-        "configuration": {
-          "title": "AI Workflow Helper",
-          "properties": {
-            "aiWorkflowHelper.includePattern": {
-              "type": "string",
-              "default": "@include",
-              "description": "Pattern to use for file inclusion (e.g., @include, #include)"
-            },
-            "aiWorkflowHelper.autoScanIncludes": {
-              "type": "boolean",
-              "default": true,
-              "description": "Automatically scan files for includes when opened"
-            }
-          }
-        }
-      }
     }
   },
   "scripts": {
