@@ -3,8 +3,11 @@
 		{
 			"path": "."
 		}
-  ],
-"settings": {
-	"editor.tabSize": 2
-}
+	],
+	"settings": {
+		"editor.tabSize": 2,
+		"github.copilot.enable": {
+			"markdown": true
+		}
+	}
 }

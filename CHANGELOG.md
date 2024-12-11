@@ -29,3 +29,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.10] - 2024-11-24
 ### Fixed
 - Diagnostics inclusion when triggered from menu item on context menu of single folder
+
+## [0.0.11] - 2024-12-11
+### Fixed
+- Copying when both files and folders are selected, and context menu is opened from a file. 

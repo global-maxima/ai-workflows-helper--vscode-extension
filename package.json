@@ -8,8 +8,9 @@
   "displayName": "AI workflow helper",
   "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "engines": {
+    "node": "18.18.2",
     "vscode": "^1.94.0"
   },
   "categories": [
@@ -19,42 +20,42 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-workflows-helper--vscode-extension.copyFiles",
+        "command": "ai-workflows-helper.copyFiles",
         "title": "Copy Files as Text Stream"
       },
       {
-        "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
+        "command": "ai-workflows-helper.copyFilesAndFolders",
         "title": "Copy Files and Files in Folders as Text Stream"
       },
       {
-        "command": "ai-workflows-helper--vscode-extension.copyFilesWithDiagnostics",
+        "command": "ai-workflows-helper.copyFilesWithDiagnostics",
         "title": "Copy Files, including Diagnostics"
       },
       {
-        "command": "ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics",
+        "command": "ai-workflows-helper.copyFilesInFoldersWithDiagnostics",
         "title": "Copy Files and Files in Folders, including Diagnostics"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
-          "command": "ai-workflows-helper--vscode-extension.copyFiles",
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyFiles",
           "group": "7_aihelper@1"
         },
         {
-          "when": "explorerResourceIsFolder == true",
-          "command": "ai-workflows-helper--vscode-extension.copyFilesAndFolders",
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyFilesAndFolders",
           "group": "7_aihelper@1"
         },
         {
-          "when": "explorerResourceIsFolder != true && resourceScheme == 'file'",
-          "command": "ai-workflows-helper--vscode-extension.copyFilesWithDiagnostics",
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyFilesWithDiagnostics",
           "group": "7_aihelper@2"
         },
         {
-          "when": "explorerResourceIsFolder == true",
-          "command": "ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics",
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyFilesInFoldersWithDiagnostics",
           "group": "7_aihelper@2"
         }
       ]

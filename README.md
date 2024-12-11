@@ -37,32 +37,6 @@ content of file2
 content of file3
 ```
 
-### File Inclusion
-```typescript
-// Original file:
-const config = {
-  // @include ./config/default.json
-};
-
-// After inclusion:
-const config = {
-  "port": 3000,
-  "debug": true,
-  "database": {
-    "host": "localhost",
-    "port": 5432
-  }
-};
-```
-
-## Requirements
-- VS Code version 1.94.0 or higher
-
-## Extension Settings
-This extension contributes the following settings:
-* `aiWorkflowHelper.includePattern`: Configure the pattern used for file inclusion
-* `aiWorkflowHelper.autoScanIncludes`: Enable/disable automatic scanning of files for includes
-
 ## Known Issues
 None reported.
 

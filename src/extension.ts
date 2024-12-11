@@ -2,24 +2,46 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-	// Original commands
-	let disposable = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFiles', (uri, uris) => {
-		copyFilesAsTextStream(uris);
-	});
-	context.subscriptions.push(disposable);
+	// Helper function to handle URI parameters consistently
+	function getUrisToProcess(uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined): vscode.Uri[] {
+		if (uris && uris.length > 0) {
+			return uris;
+		}
+		return uri ? [uri] : [];
+	}
 
-	let disposable2 = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFilesAndFolders', (uri, uris) => {
-		copyFilesAndFoldersAsTextStream(uris);
-	});
-	context.subscriptions.push(disposable2);
+	const commands = [
+		{
+			id: 'ai-workflows-helper.copyFiles',
+			handler: copyFilesAsTextStream
+		},
+		{
+			id: 'ai-workflows-helper.copyFilesAndFolders',
+			handler: copyFilesAndFoldersAsTextStream
+		},
+		{
+			id: 'ai-workflows-helper.copyFilesWithDiagnostics',
+			handler: copyFilesWithDiagnostics
+		},
+		{
+			id: 'ai-workflows-helper.copyFilesInFoldersWithDiagnostics',
+			handler: copyFilesInFoldersWithDiagnostics
+		}
+	];
 
-	let disposable3 = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFilesWithDiagnostics', (uri, uris) => {
-		copyFilesWithDiagnostics(uris);
-	});
-	context.subscriptions.push(disposable3);
-
-	let disposable4 = vscode.commands.registerCommand('ai-workflows-helper--vscode-extension.copyFilesInFoldersWithDiagnostics', (uri, uris) => {
-		copyFilesInFoldersWithDiagnostics(uris);
+	commands.forEach(({ id, handler }) => {
+		const disposable = vscode.commands.registerCommand(
+			id,
+			(uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined) => {
+				const filesToProcess = getUrisToProcess(uri, uris);
+				if (filesToProcess.length === 0) {
+					vscode.window.showWarningMessage('No files or folders selected.');
+					return;
+				}
+				handler(filesToProcess);
+			}
+		);
+		context.subscriptions.push(disposable);
 	});
 }
 
