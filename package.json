@@ -6,7 +6,7 @@
     "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension"
   },
   "displayName": "AI workflow helper",
-  "description": "Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream.",
+  "description": "Select multiple files across multiple folders, right-click on them, and copy their contents and, optionally, diagnostics into the clipboard as one text stream.",
   "icon": "images/logo_rounded.png",
   "version": "0.0.11",
   "engines": {
