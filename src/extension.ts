@@ -101,7 +101,6 @@ async function collectDependenciesWithState(
 	config: ProjectConfig,
 	state: DependencyCollectionState
 ): Promise<void> {
-	// 2024-12-17: Uncomfortable with how depth tracking interacts with multiple entry points
 	if (state.depth >= (config.maxDepth || 3) || state.visited.has(uri.fsPath)) {
 		return;
 	}
@@ -112,32 +111,81 @@ async function collectDependenciesWithState(
 	try {
 		const document = await vscode.workspace.openTextDocument(uri);
 
-		// 2024-12-17: Discomfort - we're querying for all symbols at position 0,0
-		// This might miss contextual symbols that only make sense at specific locations
 		const symbols = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
 			'vscode.executeDocumentSymbolProvider',
 			document.uri
 		);
 
 		const definedSymbols = symbols?.map(s => s.name) || [];
-
-		const [definitions, references] = await Promise.all([
-			vscode.commands.executeCommand<vscode.Location[]>(
-				'vscode.executeDefinitionProvider',
-				document.uri,
-				new vscode.Position(0, 0)
-			),
-			vscode.commands.executeCommand<vscode.Location[]>(
-				'vscode.executeReferenceProvider',
-				document.uri,
-				new vscode.Position(0, 0)
-			)
-		]);
-
-		// 2024-12-17: Uncomfortable with potential for duplicate processing from different entry points
 		const locations = new Map<string, { location: vscode.Location; type: 'definition' | 'reference' }>();
-		definitions?.forEach(loc => locations.set(loc.uri.fsPath, { location: loc, type: 'definition' }));
-		references?.forEach(loc => locations.set(loc.uri.fsPath, { location: loc, type: 'reference' }));
+
+		if (document.languageId === 'rust') {
+			for (let line = 0; line < document.lineCount; line++) {
+				const lineText = document.lineAt(line).text;
+				const modMatch = lineText.match(/^\s*mod\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;/);
+				if (modMatch) {
+					const modName = modMatch[1];
+
+					// Try both possible module file locations
+					const modFile = vscode.Uri.file(path.join(path.dirname(uri.fsPath), `${modName}.rs`));
+					const modDirFile = vscode.Uri.file(path.join(path.dirname(uri.fsPath), modName, 'mod.rs'));
+
+					try {
+						const checkFile = async (fileUri: vscode.Uri): Promise<boolean> => {
+							try {
+								await vscode.workspace.fs.stat(fileUri);
+								return true;
+							} catch {
+								return false;
+							}
+						};
+
+						const [modFileExists, modDirExists] = await Promise.all([
+							checkFile(modFile),
+							checkFile(modDirFile)
+						]);
+
+						const targetUri = modFileExists ? modFile : modDirExists ? modDirFile : null;
+						if (targetUri) {
+							// Get the relative path for the referencing file
+							const referencingPath = path.relative(config.rootPath, uri.fsPath);
+
+							let existingDep = state.dependencies.get(targetUri.fsPath);
+							if (!existingDep) {
+								existingDep = {
+									uri: targetUri,
+									referencedBy: [referencingPath],
+									defines: [],
+									references: []
+								};
+								state.dependencies.set(targetUri.fsPath, existingDep);
+
+								// Load the module file to get its symbols
+								try {
+									const modDocument = await vscode.workspace.openTextDocument(targetUri);
+									const modSymbols = await vscode.commands.executeCommand<vscode.SymbolInformation[]>(
+										'vscode.executeDocumentSymbolProvider',
+										modDocument.uri
+									);
+									existingDep.defines = modSymbols?.map(s => s.name) || [];
+								} catch (error) {
+									console.error('Error loading module symbols:', error);
+								}
+							} else if (!existingDep.referencedBy?.includes(referencingPath)) {
+								existingDep.referencedBy = [...(existingDep.referencedBy || []), referencingPath];
+							}
+
+							locations.set(targetUri.fsPath, {
+								location: new vscode.Location(targetUri, new vscode.Position(0, 0)),
+								type: 'definition'
+							});
+						}
+					} catch (error) {
+						console.error('Error checking module files:', error);
+					}
+				}
+			}
+		}
 
 		for (const [defPath, info] of locations) {
 			const def = info.location.uri;
@@ -149,6 +197,7 @@ async function collectDependenciesWithState(
 			}
 
 			const relativePath = path.relative(config.rootPath, uri.fsPath);
+
 			let existingDep = state.dependencies.get(def.fsPath);
 
 			if (!existingDep) {
@@ -169,7 +218,6 @@ async function collectDependenciesWithState(
 				existingDep.defines = [...new Set([...(existingDep.defines || []), ...definedSymbols])];
 			}
 
-			// 2024-12-17: Recursive call increases cognitive complexity
 			await collectDependenciesWithState(def, config, state);
 		}
 	} catch (error) {
