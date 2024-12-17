@@ -10,37 +10,77 @@ export function activate(context: vscode.ExtensionContext) {
 		return uri ? [uri] : [];
 	}
 
+	async function processSelection(uris: vscode.Uri[], includeDiagnostics: boolean) {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			vscode.window.showErrorMessage('No workspace folder found.');
+			return;
+		}
+
+		await vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: "AI Workflow Helper",  // Changed to extension name
+			cancellable: false
+		}, async (progress) => {
+			progress.report({ message: "Copying content..." });  // Initial state
+
+			let textStream = '';
+			for (const uri of uris) {
+				const stats = await vscode.workspace.fs.stat(uri);
+
+				if (stats.type === vscode.FileType.File) {
+					textStream += await (includeDiagnostics ?
+						readFileWithDiagnostics(uri, workspaceFolder) :
+						readFileToStream(uri, workspaceFolder));
+				} else if (stats.type === vscode.FileType.Directory) {
+					const folderName = path.basename(uri.fsPath);
+					textStream += `--- Folder: ${folderName} ---\n`;
+					const folderUris = await vscode.workspace.findFiles(new vscode.RelativePattern(uri, '**/*'));
+					for (const folderUri of folderUris) {
+						textStream += await (includeDiagnostics ?
+							readFileWithDiagnostics(folderUri, workspaceFolder) :
+							readFileToStream(folderUri, workspaceFolder));
+					}
+				}
+			}
+
+			await vscode.env.clipboard.writeText(textStream);
+			progress.report({
+				increment: 100,
+				message: `Content copied${includeDiagnostics ? ' with diagnostics' : ''}`  // Simplified message
+			});
+
+			await new Promise(resolve => setTimeout(resolve, 3000));
+		});
+	}
+
 	const commands = [
 		{
-			id: 'ai-workflows-helper.copyFiles',
-			handler: copyFilesAsTextStream
-		},
-		{
-			id: 'ai-workflows-helper.copyFilesAndFolders',
-			handler: copyFilesAndFoldersAsTextStream
-		},
-		{
-			id: 'ai-workflows-helper.copyFilesWithDiagnostics',
-			handler: copyFilesWithDiagnostics
-		},
-		{
-			id: 'ai-workflows-helper.copyFilesInFoldersWithDiagnostics',
-			handler: copyFilesInFoldersWithDiagnostics
-		}
-	];
-
-	commands.forEach(({ id, handler }) => {
-		const disposable = vscode.commands.registerCommand(
-			id,
-			(uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined) => {
+			id: 'ai-workflows-helper.copyAsTextStream',
+			handler: async (uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined) => {
 				const filesToProcess = getUrisToProcess(uri, uris);
 				if (filesToProcess.length === 0) {
 					vscode.window.showWarningMessage('No files or folders selected.');
 					return;
 				}
-				handler(filesToProcess);
+				await processSelection(filesToProcess, false);
 			}
-		);
+		},
+		{
+			id: 'ai-workflows-helper.copyAsTextStreamWithDiagnostics',
+			handler: async (uri: vscode.Uri | undefined, uris: vscode.Uri[] | undefined) => {
+				const filesToProcess = getUrisToProcess(uri, uris);
+				if (filesToProcess.length === 0) {
+					vscode.window.showWarningMessage('No files or folders selected.');
+					return;
+				}
+				await processSelection(filesToProcess, true);
+			}
+		}
+	];
+
+	commands.forEach(({ id, handler }) => {
+		const disposable = vscode.commands.registerCommand(id, handler);
 		context.subscriptions.push(disposable);
 	});
 }

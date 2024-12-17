@@ -33,3 +33,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.11] - 2024-12-11
 ### Fixed
 - Copying when both files and folders are selected, and context menu is opened from a file. 
+
+## [0.0.12] - 2024-12-12
+### Fixed
+- Simplified menu items into 2: Copy and Copy with Diagnostics. 
+- Made notifications disappear after 3 seconds

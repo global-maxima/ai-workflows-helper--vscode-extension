@@ -8,7 +8,7 @@
   "displayName": "AI workflow helper",
   "description": "Select multiple files across multiple folders, right-click on them, and copy their contents and, optionally, diagnostics into the clipboard as one text stream.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "engines": {
     "node": "18.18.2",
     "vscode": "^1.94.0"
@@ -20,42 +20,24 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-workflows-helper.copyFiles",
-        "title": "Copy Files as Text Stream"
+        "command": "ai-workflows-helper.copyAsTextStream",
+        "title": "Copy as Text Stream"
       },
       {
-        "command": "ai-workflows-helper.copyFilesAndFolders",
-        "title": "Copy Files and Files in Folders as Text Stream"
-      },
-      {
-        "command": "ai-workflows-helper.copyFilesWithDiagnostics",
-        "title": "Copy Files, including Diagnostics"
-      },
-      {
-        "command": "ai-workflows-helper.copyFilesInFoldersWithDiagnostics",
-        "title": "Copy Files and Files in Folders, including Diagnostics"
+        "command": "ai-workflows-helper.copyAsTextStreamWithDiagnostics",
+        "title": "Copy as Text Stream with Diagnostics"
       }
     ],
     "menus": {
       "explorer/context": [
         {
           "when": "resourceScheme == 'file'",
-          "command": "ai-workflows-helper.copyFiles",
+          "command": "ai-workflows-helper.copyAsTextStream",
           "group": "7_aihelper@1"
         },
         {
           "when": "resourceScheme == 'file'",
-          "command": "ai-workflows-helper.copyFilesAndFolders",
-          "group": "7_aihelper@1"
-        },
-        {
-          "when": "resourceScheme == 'file'",
-          "command": "ai-workflows-helper.copyFilesWithDiagnostics",
-          "group": "7_aihelper@2"
-        },
-        {
-          "when": "resourceScheme == 'file'",
-          "command": "ai-workflows-helper.copyFilesInFoldersWithDiagnostics",
+          "command": "ai-workflows-helper.copyAsTextStreamWithDiagnostics",
           "group": "7_aihelper@2"
         }
       ]
