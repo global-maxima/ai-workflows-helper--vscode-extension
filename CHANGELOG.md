@@ -38,3 +38,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ### Fixed
 - Simplified menu items into 2: Copy and Copy with Diagnostics. 
 - Made notifications disappear after 3 seconds
+
+## [0.0.13] - 2024-12-17
+### Added
+- Copy files with their local dependencies, relying on VS Code's language services view of dependencies

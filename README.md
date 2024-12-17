@@ -1,40 +1,67 @@
 # AI workflow helper
 
-Allows users to select multiple files across multiple folders, right-click on them, and copy their contents into the clipboard as one text stream, optionally including vs code diagnostics output for those files. Each file's content will be preceded by its filename, and the files and folders will be placed in the text stream in the order they were selected.
+VS Code extension that helps prepare code for AI tools by collecting files and their dependencies. Users can select multiple files across multiple folders and copy their contents into the clipboard as a single text stream, with options to include VS Code diagnostics or related dependencies.
 
 ## Features
 
-### File Copying
-- Right-click on files to copy their contents as a text stream
-- Copy multiple files and folders in the order they were selected
-- File contents are formatted with clear separators and filenames
-- Diagnostics output can be included
-- Works across multiple folders
+This extension enhances your AI workflow by providing three distinct ways to collect and share code:
+
+**Basic Text Stream**
+Copies selected files' contents into a single text stream, maintaining selection order and clear file boundaries.
+
+**Text Stream with Diagnostics**
+Includes VS Code's diagnostic information along with file contents, helping provide additional context about potential issues or warnings.
+
+**Text Stream with Dependencies**
+Collects not just the selected files, but also files they depend on based on VS Code's language services. This helps ensure AI tools have necessary context by including:
+- Files containing referenced definitions
+- Files containing symbols used in the selected code
+- Related files within the same project, respecting project boundaries
+
+The dependency collection respects project structure by:
+- Honoring exclusions from tsconfig.json, Cargo.toml, and .gitignore
+- Only including files within the project's boundaries
+- Preventing upward traversal in the directory hierarchy
+- Deduplicating shared dependencies
 
 ## Usage
 
-### Copying Files and Folders
-1. Select one or more folders in the VS Code explorer
-2. Right-click and select "Copy Files as Text Stream" or "Copy Files and Files in Folders as Text Stream"
-3. All files within the selected folders will be copied to your clipboard
+To use the extension, right-click on one or more files in the VS Code explorer and select one of these options:
 
-### Include Diagnostics
-1. Select one or more folders in the VS Code explorer
-2. Right-click and select "Copy Files, including Diagnostics" or "Copy Files and Files in Folders, including Diagnostics"
-3. All files within the selected folders and their vs code diagnostics will be copied to your clipboard
+**Copy as Text Stream**
+Copies just the selected files, preserving selection order.
+
+**Copy as Text Stream with Diagnostics**
+Copies selected files along with their VS Code diagnostics.
+
+**Copy with Local Dependencies**
+Copies selected files along with any files they depend on, as determined by VS Code's language services.
 
 ## Example Output
 
-### File Copying
+### Basic File Copying
 ```
 --- src/file1.ts ---
 content of file1
-
 --- src/utils/file2.ts ---
 content of file2
+```
 
---- src/components/file3.ts ---
-content of file3
+### Copying with Dependencies
+```
+--- src/components/Button.tsx ---
+import { useState } from 'react';
+import { styles } from '../styles/button';
+
+export const Button = () => {
+    const [pressed, setPressed] = useState(false);
+    return <button className={styles.base}>Click me</button>;
+};
+
+--- src/styles/button.ts ---
+export const styles = {
+    base: 'rounded-md bg-blue-500 px-4 py-2'
+};
 ```
 
 ## Known Issues

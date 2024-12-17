@@ -6,9 +6,9 @@
     "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension"
   },
   "displayName": "AI workflow helper",
-  "description": "Select multiple files across multiple folders, right-click on them, and copy their contents and, optionally, diagnostics into the clipboard as one text stream.",
+  "description": "Select files and copy their contents, diagnostics, and related dependencies into clipboard as a single text stream for use with AI tools.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "engines": {
     "node": "18.18.2",
     "vscode": "^1.94.0"
@@ -26,6 +26,10 @@
       {
         "command": "ai-workflows-helper.copyAsTextStreamWithDiagnostics",
         "title": "Copy as Text Stream with Diagnostics"
+      },
+      {
+        "command": "ai-workflows-helper.copyWithLocalDependencies",
+        "title": "Copy with Local Dependencies"
       }
     ],
     "menus": {
@@ -39,6 +43,11 @@
           "when": "resourceScheme == 'file'",
           "command": "ai-workflows-helper.copyAsTextStreamWithDiagnostics",
           "group": "7_aihelper@2"
+        },
+        {
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyWithLocalDependencies",
+          "group": "7_aihelper@3"
         }
       ]
     }
