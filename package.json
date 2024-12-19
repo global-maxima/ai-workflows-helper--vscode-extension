@@ -28,12 +28,12 @@
         "title": "Copy as Text Stream with Diagnostics"
       },
       {
-        "command": "ai-workflows-helper.copyWithLocalDependencies",
-        "title": "Copy with Local Dependencies"
-      },
-      {
         "command": "ai-workflows-helper.copyDiagnosticsOnly",
         "title": "Copy Diagnostics Only"
+      },
+      {
+        "command": "ai-workflows-helper.copyWithLocalDependencies",
+        "title": "Copy with Local Dependencies"
       }
     ],
     "menus": {
@@ -49,13 +49,13 @@
           "group": "7_aihelper@2"
         },
         {
-          "when": "resourceScheme == 'file' && resourceExtname =~ /\\.(ts|rs)$/",
-          "command": "ai-workflows-helper.copyWithLocalDependencies",
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyDiagnosticsOnly",
           "group": "7_aihelper@3"
         },
         {
-          "when": "resourceScheme == 'file'",
-          "command": "ai-workflows-helper.copyDiagnosticsOnly",
+          "when": "resourceScheme == 'file' && resourceExtname =~ /\\.(ts|rs)$/",
+          "command": "ai-workflows-helper.copyWithLocalDependencies",
           "group": "7_aihelper@4"
         }
       ]

@@ -48,3 +48,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Fix Copy and Copy with Diagnostics functionality that was broken in 0.0.13
 ### Added
 - Limit activation of Copy with Local Dependencies to .ts and .rs files, as only these are supported for now
+
+## [0.0.15] - 2024-12-19
+### Added
+- 'Copy Diagnostics Only' functionality
