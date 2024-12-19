@@ -45,7 +45,7 @@
           "group": "7_aihelper@2"
         },
         {
-          "when": "resourceScheme == 'file'",
+          "when": "resourceScheme == 'file' && resourceExtname =~ /\\.(ts|rs)$/",
           "command": "ai-workflows-helper.copyWithLocalDependencies",
           "group": "7_aihelper@3"
         }
