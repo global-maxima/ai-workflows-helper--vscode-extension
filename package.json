@@ -6,9 +6,9 @@
     "url": "https://github.com/global-maxima/ai-workflows-helper--vscode-extension"
   },
   "displayName": "AI workflow helper",
-  "description": "Select files and copy their contents, diagnostics, and related dependencies into clipboard as a single text stream for use with AI tools.",
+  "description": "Select files and copy their contents, diagnostics, and related dependencies into clipboard as a single text stream for use with language centric AI tools.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "engines": {
     "node": "18.18.2",
     "vscode": "^1.94.0"

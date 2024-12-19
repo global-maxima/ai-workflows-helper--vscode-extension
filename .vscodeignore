@@ -13,3 +13,5 @@ vsc-extension-quickstart.md
 **/.vscode-test.*
 artwork/**
 ai-workflows-helper.code-workspace
+.history/**
+how_to_publish.md

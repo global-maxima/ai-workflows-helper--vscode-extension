@@ -42,3 +42,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.13] - 2024-12-17
 ### Added
 - Copy files with their local dependencies, relying on VS Code's language services view of dependencies
+
+## [0.0.14] - 2024-12-19
+### Fixed
+- Fix Copy and Copy with Diagnostics functionality that was broken in 0.0.13
+### Added
+- Limit activation of Copy with Local Dependencies to .ts and .rs files, as only these are supported for now
