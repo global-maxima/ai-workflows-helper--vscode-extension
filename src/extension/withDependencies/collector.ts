@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { ProjectConfig, isValidDependencyPath } from '../config';
-import { FileSystemManager } from '../fileSystem';
+import { FileSystemManager } from '../utils/fileSystem';
 import { DependencyResult, DependencyCollectionState, DependencyContext, LanguageHandler } from './types';
 import { RustHandler } from './rust';
 import { TypeScriptHandler } from './typescript';

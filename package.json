@@ -8,7 +8,7 @@
   "displayName": "AI workflow helper",
   "description": "Select files and copy their contents, diagnostics, and related dependencies into clipboard as a single text stream for use with language centric AI tools.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "engines": {
     "node": "18.18.2",
     "vscode": "^1.94.0"
@@ -30,6 +30,10 @@
       {
         "command": "ai-workflows-helper.copyWithLocalDependencies",
         "title": "Copy with Local Dependencies"
+      },
+      {
+        "command": "ai-workflows-helper.copyDiagnosticsOnly",
+        "title": "Copy Diagnostics Only"
       }
     ],
     "menus": {
@@ -48,6 +52,11 @@
           "when": "resourceScheme == 'file' && resourceExtname =~ /\\.(ts|rs)$/",
           "command": "ai-workflows-helper.copyWithLocalDependencies",
           "group": "7_aihelper@3"
+        },
+        {
+          "when": "resourceScheme == 'file'",
+          "command": "ai-workflows-helper.copyDiagnosticsOnly",
+          "group": "7_aihelper@4"
         }
       ]
     }

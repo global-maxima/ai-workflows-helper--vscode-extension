@@ -6,7 +6,3 @@ export function getUrisToProcess(uri: vscode.Uri | undefined, uris: vscode.Uri[]
   }
   return uri ? [uri] : [];
 }
-
-export function getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder | undefined {
-  return vscode.workspace.getWorkspaceFolder(uri);
-}
