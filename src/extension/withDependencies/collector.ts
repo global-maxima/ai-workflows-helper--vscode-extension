@@ -1,4 +1,3 @@
-// src/extension/withDependencies/collector.ts
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { ProjectConfig, isValidDependencyPath } from '../config';
@@ -6,13 +5,15 @@ import { FileSystemManager } from '../utils/fileSystem';
 import { DependencyResult, DependencyCollectionState, DependencyContext, LanguageHandler } from './types';
 import { RustHandler } from './rust';
 import { TypeScriptHandler } from './typescript';
+import { GitIgnoreHandler } from '../utils/gitignore/handler';
 
 export class DependencyCollector {
   private handlers: Map<string, LanguageHandler>;
-  // added at 2024-12-17: Cache for language-specific configurations
   private configCache: Map<string, { handler: LanguageHandler; config: any }>;
+  private gitIgnoreHandler: GitIgnoreHandler;
+  private fileSystemManager: FileSystemManager;
 
-  constructor() {
+  constructor(gitIgnoreHandler: GitIgnoreHandler) {
     const handlers = new Map<string, LanguageHandler>();
     handlers.set('rust', new RustHandler());
     handlers.set('typescript', new TypeScriptHandler());
@@ -20,9 +21,14 @@ export class DependencyCollector {
 
     this.handlers = handlers;
     this.configCache = new Map();
+    this.gitIgnoreHandler = gitIgnoreHandler;
+    this.fileSystemManager = new FileSystemManager(gitIgnoreHandler);
   }
 
-  // added at 2024-12-17: Handler configuration management
+  public dispose(): void {
+    this.configCache.clear();
+  }
+
   private async getOrCreateHandlerConfig(
     uri: vscode.Uri,
     handler: LanguageHandler
@@ -41,12 +47,10 @@ export class DependencyCollector {
     return cached.config;
   }
 
-  // added at 2024-12-17: Handler-specific configuration initialization
   private async initializeHandlerConfig(
     uri: vscode.Uri,
     handler: LanguageHandler
   ): Promise<any> {
-    // Currently only TypeScript handler needs configuration
     if (handler instanceof TypeScriptHandler) {
       const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
       if (!workspaceFolder) {
@@ -74,6 +78,11 @@ export class DependencyCollector {
       return;
     }
 
+    // Check if file should be ignored
+    if (await this.gitIgnoreHandler.shouldIgnore(uri.fsPath)) {
+      return;
+    }
+
     state.visited.add(uri.fsPath);
     state.depth++;
 
@@ -86,7 +95,6 @@ export class DependencyCollector {
         return;
       }
 
-      // added at 2024-12-17: Initialize handler with its configuration
       const handlerConfig = await this.getOrCreateHandlerConfig(uri, handler);
       const locations = await handler.collectLocations(document);
 
@@ -95,7 +103,8 @@ export class DependencyCollector {
 
         if (!isValidDependencyPath(config, def.fsPath) ||
           config.excludePatterns.some(pattern =>
-            def.fsPath.includes(pattern.replace('**', '')))) {
+            def.fsPath.includes(pattern.replace('**', ''))) ||
+          await this.gitIgnoreHandler.shouldIgnore(def.fsPath)) {
           continue;
         }
 
@@ -116,7 +125,6 @@ export class DependencyCollector {
           existingDep.referencedBy = [...(existingDep.referencedBy || []), relativePath];
         }
 
-        // added at 2024-12-17: Track relationship type
         if (info.type === 'definition') {
           existingDep.defines = existingDep.defines || [];
           if (!existingDep.defines.includes(relativePath)) {
@@ -149,7 +157,6 @@ export class DependencyCollector {
     diagnostics += ` * Focus file: ${uri.fsPath}\n`;
     diagnostics += ` * Total dependencies found: ${state.dependencies.size}\n`;
 
-    // added at 2024-12-17: Enhanced diagnostic information
     const errorCount = Array.from(state.dependencies.values()).filter(d => d.error).length;
     if (errorCount > 0) {
       diagnostics += ` * Errors encountered: ${errorCount}\n`;
@@ -179,9 +186,6 @@ export class DependencyCollector {
     return diagnostics;
   }
 
-  // src/extension/withDependencies/collector.ts
-  // ...previous code remains in place...
-
   public async collectAndStreamDependencies(
     uri: vscode.Uri,
     config: ProjectConfig,
@@ -196,12 +200,10 @@ export class DependencyCollector {
     let errorCount = 0;
 
     try {
-      // added at 2024-12-17: Enhanced state tracking
       const state: DependencyCollectionState = {
         dependencies: new Map(),
         visited: new Set(),
         depth: 0,
-        // added at 2024-12-17: Track resolution strategies used
         resolutionStrategies: new Set<string>()
       };
 
@@ -210,21 +212,21 @@ export class DependencyCollector {
 
       const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
       if (workspaceFolder && !context.outputted.has(uri.fsPath)) {
-        textStream += await FileSystemManager.readFileToStream(uri, workspaceFolder, {
-          isFocusFile: true
-        });
-        context.outputted.add(uri.fsPath);
-        processedCount++;
+        // Check gitignore before reading
+        if (!await this.gitIgnoreHandler.shouldIgnore(uri.fsPath)) {
+          textStream += await FileSystemManager.readFileToStream(uri, workspaceFolder, {
+            isFocusFile: true
+          });
+          context.outputted.add(uri.fsPath);
+          processedCount++;
+        }
       }
 
-      // added at 2024-12-17: Sort dependencies by resolution strategy and path
       const sortedDeps = Array.from(state.dependencies.entries())
         .sort(([pathA, depA], [pathB, depB]) => {
-          // Sort by presence of error first
           if (!!depA.error !== !!depB.error) {
             return depA.error ? 1 : -1;
           }
-          // Then by path
           return pathA.localeCompare(pathB);
         });
 
@@ -239,7 +241,6 @@ export class DependencyCollector {
 
         if (dep.error) {
           errorCount++;
-          // added at 2024-12-17: Enhanced error reporting
           textStream += `--- Error processing ${depPath} ---\n`;
           textStream += `/* Error Context:\n`;
           textStream += ` * - Error: ${dep.error}\n`;
@@ -256,18 +257,21 @@ export class DependencyCollector {
           continue;
         }
 
-        textStream += await FileSystemManager.readFileToStream(
-          dep.uri,
-          depWorkspaceFolder,
-          {
-            isFocusFile: context.focusFiles.has(depPath),
-            referencedBy: dep.referencedBy,
-            defines: dep.defines,
-            references: dep.references
-          }
-        );
-        context.outputted.add(depPath);
-        processedCount++;
+        // Check gitignore before reading
+        if (!await this.gitIgnoreHandler.shouldIgnore(depPath)) {
+          textStream += await FileSystemManager.readFileToStream(
+            dep.uri,
+            depWorkspaceFolder,
+            {
+              isFocusFile: context.focusFiles.has(depPath),
+              referencedBy: dep.referencedBy,
+              defines: dep.defines,
+              references: dep.references
+            }
+          );
+          context.outputted.add(depPath);
+          processedCount++;
+        }
 
         context.progress.report({
           message: `Processing dependencies... (${processedCount}/${state.dependencies.size} files)`,
@@ -277,7 +281,6 @@ export class DependencyCollector {
     } catch (error) {
       console.error('Error in collectAndStreamDependencies:', error);
       errorCount++;
-      // added at 2024-12-17: Enhanced error handling
       textStream += `/*\n * Critical Error in Dependency Collection:\n * ${error}\n */\n\n`;
     }
 

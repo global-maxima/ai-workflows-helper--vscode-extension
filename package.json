@@ -8,16 +8,57 @@
   "displayName": "AI workflow helper",
   "description": "Select files and copy their contents, diagnostics, and related dependencies into clipboard as a single text stream for use with language centric AI tools.",
   "icon": "images/logo_rounded.png",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "engines": {
-    "node": "18.18.2",
-    "vscode": "^1.94.0"
+    "node": "20.13.1",
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "AI Workflows Helper",
+      "properties": {
+        "aiWorkflowsHelper.maxDepth": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Maximum depth for dependency collection"
+        },
+        "aiWorkflowsHelper.excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Patterns to exclude from collection"
+        },
+        "aiWorkflowsHelper.gitignore.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable .gitignore support"
+        },
+        "aiWorkflowsHelper.gitignore.respectGlobalIgnore": {
+          "type": "boolean",
+          "default": true,
+          "description": "Respect global .gitignore files"
+        },
+        "aiWorkflowsHelper.gitignore.respectNestedIgnores": {
+          "type": "boolean",
+          "default": true,
+          "description": "Respect nested .gitignore files"
+        },
+        "aiWorkflowsHelper.gitignore.cacheTimeout": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 1000,
+          "description": "Cache timeout in milliseconds"
+        }
+      }
+    },
     "commands": [
       {
         "command": "ai-workflows-helper.copyAsTextStream",
@@ -76,16 +117,15 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.94.0",
+    "@types/vscode": "^1.96.0",
     "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
+    "@types/node": "20.x",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "eslint": "^8.57.0",
     "esbuild": "^0.20.2",
     "npm-run-all": "^4.1.5",
-    "typescript": "^5.4.5",
-    "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.3.9"
+    "typescript": "5.5.4",
+    "@vscode/test-cli": "^0.0.10"
   }
 }
