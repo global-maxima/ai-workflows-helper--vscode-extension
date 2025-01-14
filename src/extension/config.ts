@@ -47,7 +47,7 @@ export class ConfigManager {
   }
 
   private loadConfig(workspaceFolder: vscode.WorkspaceFolder): ProjectConfig {
-    const configuration = vscode.workspace.getConfiguration('aiWorkflowsHelper', workspaceFolder.uri);
+    const configuration = vscode.workspace.getConfiguration('ai-workflows-helper', workspaceFolder.uri);
 
     const rawConfig = {
       rootPath: workspaceFolder.uri.fsPath,
@@ -111,7 +111,7 @@ export class ConfigManager {
   }
 
   private handleConfigurationChanged(event: vscode.ConfigurationChangeEvent): void {
-    if (event.affectsConfiguration('aiWorkflowsHelper')) {
+    if (event.affectsConfiguration('ai-workflows-helper')) {
       // Reload all configurations
       for (const [path, _] of this.workspaceConfigs) {
         const workspaceFolder = vscode.workspace.workspaceFolders?.find(

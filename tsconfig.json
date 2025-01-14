@@ -16,8 +16,7 @@
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
 	},
 	"include": [
-		"src/**/*",
-		"test-workspace"
+		"src/**/*"
 	],
 	"exclude": [
 		"node_modules/**/*",

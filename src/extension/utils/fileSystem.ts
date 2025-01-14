@@ -54,24 +54,18 @@ export class FileSystemManager {
   }
 
   /**
-   * Reads a file's content into a formatted stream
+   * Reads a file and returns its contents as a formatted string stream
    */
-  public static async readFileToStream(
+  public async readFileToStream(
     uri: vscode.Uri,
     workspaceFolder: vscode.WorkspaceFolder,
     options: FileStreamOptions = {}
   ): Promise<string> {
     let content = '';
 
-    // Add file header
-    content += `\n--- ${options.relativePath ?
-      path.relative(workspaceFolder.uri.fsPath, uri.fsPath) :
-      uri.fsPath} ---\n`;
-
-    // Add metadata if requested
-    if (options.includeMetadata) {
-      content += '/*\n';
-      content += ' * File Context:\n';
+    // Add file metadata as comments if any metadata options are present
+    if (options.isFocusFile || options.referencedBy?.length || options.defines?.length || options.references?.length) {
+      content += `/* ${uri.fsPath}\n`;
       if (options.isFocusFile) {
         content += ' * - Focus File\n';
       }
@@ -88,6 +82,11 @@ export class FileSystemManager {
     }
 
     try {
+      // Check gitignore before reading
+      if (await this.gitIgnoreHandler.isIgnored(workspaceFolder.uri.fsPath, uri.fsPath)) {
+        return `/* File ${uri.fsPath} is ignored by gitignore */\n`;
+      }
+
       const fileContent = await vscode.workspace.fs.readFile(uri);
       content += Buffer.from(fileContent).toString(options.encoding || 'utf8');
       content += '\n';

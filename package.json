@@ -21,14 +21,14 @@
     "configuration": {
       "title": "AI Workflows Helper",
       "properties": {
-        "aiWorkflowsHelper.maxDepth": {
+        "ai-workflows-helper.maxDepth": {
           "type": "number",
           "default": 3,
           "minimum": 1,
           "maximum": 10,
           "description": "Maximum depth for dependency collection"
         },
-        "aiWorkflowsHelper.excludePatterns": {
+        "ai-workflows-helper.excludePatterns": {
           "type": "array",
           "items": {
             "type": "string"
@@ -36,22 +36,22 @@
           "default": [],
           "description": "Patterns to exclude from collection"
         },
-        "aiWorkflowsHelper.gitignore.enabled": {
+        "ai-workflows-helper.gitignore.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable .gitignore support"
         },
-        "aiWorkflowsHelper.gitignore.respectGlobalIgnore": {
+        "ai-workflows-helper.gitignore.respectGlobalIgnore": {
           "type": "boolean",
           "default": true,
           "description": "Respect global .gitignore files"
         },
-        "aiWorkflowsHelper.gitignore.respectNestedIgnores": {
+        "ai-workflows-helper.gitignore.respectNestedIgnores": {
           "type": "boolean",
           "default": true,
           "description": "Respect nested .gitignore files"
         },
-        "aiWorkflowsHelper.gitignore.cacheTimeout": {
+        "ai-workflows-helper.gitignore.cacheTimeout": {
           "type": "number",
           "default": 5000,
           "minimum": 1000,
@@ -111,7 +111,8 @@
     "package": "npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "clean": "node -e \"const fs=require('fs');if(fs.existsSync('out')){fs.rmSync('out',{recursive:true,force:true});fs.mkdirSync('out');}\"",
+    "pretest": "npm run clean && npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src --ext ts",
     "test": "vscode-test"

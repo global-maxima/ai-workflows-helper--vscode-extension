@@ -1,0 +1,9 @@
+
+# Default ignores
+node_modules/
+dist/
+out/
+
+# Explicitly include test files
+!test.ts
+!*.test.ts

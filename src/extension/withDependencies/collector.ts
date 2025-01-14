@@ -214,7 +214,7 @@ export class DependencyCollector {
       if (workspaceFolder && !context.outputted.has(uri.fsPath)) {
         // Check gitignore before reading
         if (!await this.gitIgnoreHandler.shouldIgnore(uri.fsPath)) {
-          textStream += await FileSystemManager.readFileToStream(uri, workspaceFolder, {
+          textStream += await this.fileSystemManager.readFileToStream(uri, workspaceFolder, {
             isFocusFile: true
           });
           context.outputted.add(uri.fsPath);
@@ -259,7 +259,7 @@ export class DependencyCollector {
 
         // Check gitignore before reading
         if (!await this.gitIgnoreHandler.shouldIgnore(depPath)) {
-          textStream += await FileSystemManager.readFileToStream(
+          textStream += await this.fileSystemManager.readFileToStream(
             dep.uri,
             depWorkspaceFolder,
             {
