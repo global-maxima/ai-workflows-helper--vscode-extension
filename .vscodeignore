@@ -15,3 +15,4 @@ artwork/**
 ai-workflows-helper.code-workspace
 .history/**
 how_to_publish.md
+**/*.js.map
